@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  username      String   @unique
+  password      String
+  tasks         Task[]
+  notes         Note[]
+  salahLogs     SalahLog[]
+  calendarNotes CalendarNote[]
+}
+
+model Task {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  category  String    // "academic" or "nonacademic"
+  deadline  DateTime?
+  priority  String    // "low", "medium", "high"
+  note      String?
+  done      Boolean   @default(false)
+  createdAt DateTime  @default(now())
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  updatedAt DateTime @updatedAt
+}
+
+model SalahLog {
+  id      String   @id @default(cuid())
+  userId  String
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date    String   // format "YYYY-MM-DD"
+  fajr    Boolean  @default(false)
+  dhuhr   Boolean  @default(false)
+  asr     Boolean  @default(false)
+  maghrib Boolean  @default(false)
+  isha    Boolean  @default(false)
+
+  @@unique([date, userId])
+}
+
+model CalendarNote {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      String   // format "YYYY-MM-DD"
+  body      String
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, userId])
+}
