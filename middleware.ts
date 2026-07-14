@@ -1,14 +1,16 @@
-import { withAuth } from "next-auth/middleware";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-if (typeof (globalThis as any).__dirname === "undefined") {
-  (globalThis as any).__dirname = "/";
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get('next-auth.session-token')?.value || request.cookies.get('__Secure-next-auth.session-token')?.value;
+  
+  if (!token) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+  
+  return NextResponse.next();
 }
-export default withAuth({
-  pages: {
-    signIn: "/login",
-  },
-});
 
 export const config = {
-  matcher: ["/((?!login|register|api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!login|register|api|_next/static|_next/image|favicon.ico|favicon.png).*)"],
 };
