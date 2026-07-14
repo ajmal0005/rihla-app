@@ -6,10 +6,10 @@ import { getSession } from '@/lib/auth';
 
 async function requireAuth() {
   const session = await getSession();
-  if (!session?.user?.id) {
+  if (!(session?.user as any)?.id) {
     throw new Error('Unauthorized');
   }
-  return session.user.id;
+  return (session!.user as any).id as string;
 }
 
 // Tasks
